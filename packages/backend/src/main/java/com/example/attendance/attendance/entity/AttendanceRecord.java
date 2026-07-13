@@ -46,6 +46,9 @@ public class AttendanceRecord {
 
     private Instant clockOut;
 
+    @Column(length = 50)
+    private String memo;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean corrected = false;

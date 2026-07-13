@@ -12,5 +12,6 @@ public record CorrectionCreateRequest(
     @NotNull LocalDate targetDate,
     @NotNull Instant correctedClockIn,
     @NotNull Instant correctedClockOut,
-    @NotNull @Size(min = 1, max = 500) String reason
+    @NotNull @Size(min = 1, max = 500) String reason,
+    @Size(max = 50) String correctedMemo
 ) {}

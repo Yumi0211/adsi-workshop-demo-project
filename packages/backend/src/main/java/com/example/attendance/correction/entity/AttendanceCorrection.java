@@ -65,6 +65,9 @@ public class AttendanceCorrection {
     @Column(nullable = false, length = 20)
     private CorrectionStatus status;
 
+    @Column(length = 50)
+    private String correctedMemo;
+
     @Column(length = 500)
     private String rejectReason;
 
