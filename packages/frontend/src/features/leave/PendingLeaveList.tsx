@@ -62,7 +62,7 @@ export function PendingLeaveList() {
             <div className="flex gap-2">
               <Button
                 size="sm"
-                onClick={() => approveMutation.mutate({ id: leave.id })}
+                onClick={() => approveMutation.mutate({ id: leave.id, version: leave.version })}
                 disabled={approveMutation.isPending}
               >
                 承認

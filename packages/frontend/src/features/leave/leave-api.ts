@@ -80,8 +80,10 @@ export function fetchPendingLeaves(managerId: string): Promise<PendingLeaveRespo
   return apiClient.get<PendingLeaveResponse[]>(`/api/leaves/pending?managerId=${managerId}`);
 }
 
-export function approveLeave(id: string, approverId: string): Promise<LeaveResponse> {
-  return apiClient.patch<LeaveResponse>(`/api/leaves/${id}/approve?approverId=${approverId}`);
+export function approveLeave(id: string, approverId: string, version: number): Promise<LeaveResponse> {
+  return apiClient.patch<LeaveResponse>(
+    `/api/leaves/${id}/approve?approverId=${approverId}&version=${version}`,
+  );
 }
 
 export function rejectLeave(

@@ -64,8 +64,9 @@ public class LeaveController {
     @PatchMapping("/{id}/approve")
     public LeaveResponse approve(
             @PathVariable UUID id,
-            @RequestParam UUID approverId) {
-        return leaveService.approve(id, approverId);
+            @RequestParam UUID approverId,
+            @RequestParam Long version) {
+        return leaveService.approve(id, approverId, version);
     }
 
     @PatchMapping("/{id}/reject")

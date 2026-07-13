@@ -20,7 +20,7 @@ public interface LeaveService {
 
     List<PendingLeaveResponse> findPending(UUID managerId);
 
-    LeaveResponse approve(UUID leaveId, UUID approverId);
+    LeaveResponse approve(UUID leaveId, UUID approverId, Long version);
 
     LeaveResponse reject(UUID leaveId, UUID approverId, String rejectReason, Long version);
 

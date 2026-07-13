@@ -224,7 +224,7 @@ class LeaveServiceTest {
             when(leaveRequestRepository.save(any(LeaveRequest.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            service.approve(leaveRequest.getId(), manager.getId());
+            service.approve(leaveRequest.getId(), manager.getId(), 0L);
 
             assertThat(balance.getUsedDays()).isEqualByComparingTo(new BigDecimal("3.0"));
         }
@@ -250,7 +250,7 @@ class LeaveServiceTest {
             when(leaveRequestRepository.save(any(LeaveRequest.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            service.approve(leaveRequest.getId(), manager.getId());
+            service.approve(leaveRequest.getId(), manager.getId(), 0L);
 
             assertThat(balance.getUsedDays()).isEqualByComparingTo(new BigDecimal("2.5"));
         }

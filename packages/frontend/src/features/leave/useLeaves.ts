@@ -72,7 +72,8 @@ export function useApproveLeave() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id }: { id: string }) => approveLeave(id, user!.id),
+    mutationFn: ({ id, version }: { id: string; version: number }) =>
+      approveLeave(id, user!.id, version),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LEAVES_PENDING_KEY });
       queryClient.invalidateQueries({ queryKey: LEAVES_KEY });

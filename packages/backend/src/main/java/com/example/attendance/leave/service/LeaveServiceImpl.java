@@ -125,11 +125,13 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     @Transactional
-    public LeaveResponse approve(UUID leaveId, UUID approverId) {
+    public LeaveResponse approve(UUID leaveId, UUID approverId, Long version) {
         var leaveRequest = findLeaveRequestOrThrow(leaveId);
         var approver = findEmployeeOrThrow(approverId);
 
+        validatePending(leaveRequest);
         validateApprover(approver, leaveRequest.getRequester());
+        validateVersion(leaveRequest, version);
 
         leaveRequest.setStatus(LeaveStatus.APPROVED);
         leaveRequest.setApprover(approver);
@@ -150,6 +152,7 @@ public class LeaveServiceImpl implements LeaveService {
         var leaveRequest = findLeaveRequestOrThrow(leaveId);
         var approver = findEmployeeOrThrow(approverId);
 
+        validatePending(leaveRequest);
         validateApprover(approver, leaveRequest.getRequester());
         validateVersion(leaveRequest, version);
 
@@ -184,6 +187,13 @@ public class LeaveServiceImpl implements LeaveService {
         return leaveRequestRepository.findById(leaveId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "有給申請が見つかりません: " + leaveId));
+    }
+
+    private void validatePending(LeaveRequest leaveRequest) {
+        if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "この申請は既に処理済みです（ステータス: " + leaveRequest.getStatus() + "）");
+        }
     }
 
     private void validateApprover(Employee approver, Employee requester) {
