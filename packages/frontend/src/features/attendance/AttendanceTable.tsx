@@ -36,6 +36,14 @@ const columns: Column<DailyAttendanceResponse>[] = [
     render: (day) => lastClockOut(day),
   },
   {
+    key: "memo",
+    header: "備考",
+    render: (day) => {
+      const last = day.records[day.records.length - 1];
+      return last?.memo ?? "";
+    },
+  },
+  {
     key: "workMinutes",
     header: "勤務時間",
     render: (day) => (day.workMinutes > 0 ? formatMinutes(day.workMinutes) : "-"),
@@ -49,14 +57,6 @@ const columns: Column<DailyAttendanceResponse>[] = [
     key: "overtimeMinutes",
     header: "残業",
     render: (day) => (day.overtimeMinutes > 0 ? formatMinutes(day.overtimeMinutes) : "-"),
-  },
-  {
-    key: "memo",
-    header: "備考",
-    render: (day) => {
-      const last = day.records[day.records.length - 1];
-      return last?.memo ?? "";
-    },
   },
   {
     key: "corrected",
