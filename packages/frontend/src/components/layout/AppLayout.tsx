@@ -14,7 +14,12 @@ export function AppLayout({ children }: AppLayoutProps) {
       <AppSidebar />
       <div className="flex flex-1 flex-col">
         <Header />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 relative">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden select-none opacity-25 text-6xl leading-16 break-all" aria-hidden="true">
+            {"🐻".repeat(500)}
+          </div>
+          <div className="relative">{children}</div>
+        </main>
       </div>
     </SidebarProvider>
   );
