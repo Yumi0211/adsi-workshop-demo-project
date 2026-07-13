@@ -47,6 +47,11 @@ const columns: Column<CorrectionResponse>[] = [
     render: (item) => formatTime(item.correctedClockOut),
   },
   {
+    key: "correctedMemo",
+    header: "備考",
+    render: (item) => item.correctedMemo ?? "-",
+  },
+  {
     key: "reason",
     header: "理由",
     render: (item) => (
