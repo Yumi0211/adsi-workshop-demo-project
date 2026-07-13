@@ -1,42 +1,14 @@
 "use client";
 
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/features/auth/useAuth";
+import { CurrentTime } from "./CurrentTime";
 import { formatTime } from "./format";
-import { useClockIn, useClockOut, useTodayStatus } from "./useAttendance";
-
-function CurrentTime() {
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const timeStr = now.toLocaleTimeString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-
-  const dateStr = now.toLocaleDateString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
-  });
-
-  return (
-    <div className="text-center">
-      <p className="text-4xl font-bold tabular-nums tracking-tight">{timeStr}</p>
-      <p className="text-sm text-muted-foreground mt-1">{dateStr}</p>
-    </div>
-  );
-}
+import { useClockIn, useClockOut, useTodayStatus, useUpdateMemo } from "./useAttendance";
 
 const STATUS_LABELS = {
   NOT_CLOCKED_IN: "未出勤",
@@ -45,9 +17,28 @@ const STATUS_LABELS = {
 } as const;
 
 export function ClockButtons() {
+  const { user } = useAuth();
   const { data: todayStatus, isLoading } = useTodayStatus();
   const clockInMutation = useClockIn();
   const clockOutMutation = useClockOut();
+  const updateMemoMutation = useUpdateMemo();
+  const [memo, setMemo] = useState("");
+
+  const status = todayStatus?.status ?? "NOT_CLOCKED_IN";
+  const lastRecord = todayStatus?.records[todayStatus.records.length - 1];
+  const canClockIn = status === "NOT_CLOCKED_IN";
+  const canClockOut = status === "CLOCKED_IN";
+  const isMemoEditable = status === "CLOCKED_IN";
+  const isPending = clockInMutation.isPending || clockOutMutation.isPending;
+
+  useEffect(() => {
+    if (!todayStatus) return;
+    if (status === "NOT_CLOCKED_IN") {
+      setMemo("");
+    } else {
+      setMemo(lastRecord?.memo ?? "");
+    }
+  }, [todayStatus, status, lastRecord?.memo]);
 
   if (isLoading) {
     return (
@@ -62,12 +53,10 @@ export function ClockButtons() {
     );
   }
 
-  const status = todayStatus?.status ?? "NOT_CLOCKED_IN";
-  const canClockIn = status === "NOT_CLOCKED_IN";
-  const canClockOut = status === "CLOCKED_IN";
-  const isPending = clockInMutation.isPending || clockOutMutation.isPending;
-
-  const lastRecord = todayStatus?.records[todayStatus.records.length - 1];
+  const handleSaveMemo = () => {
+    if (!lastRecord) return;
+    updateMemoMutation.mutate({ recordId: lastRecord.id, memo });
+  };
 
   return (
     <div className="rounded-lg border p-6 space-y-4">
@@ -99,6 +88,27 @@ export function ClockButtons() {
           <LogOut className="h-8 w-8" />
           <span className="text-lg font-bold">退勤</span>
         </button>
+      </div>
+      <div className="flex max-w-md mx-auto gap-2">
+        <Input
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="備考（任意）"
+          maxLength={50}
+          disabled={!isMemoEditable}
+          className="flex-1 bg-white"
+        />
+        {isMemoEditable && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleSaveMemo}
+            disabled={updateMemoMutation.isPending}
+          >
+            <Save className="h-4 w-4 mr-1" />
+            保存
+          </Button>
+        )}
       </div>
     </div>
   );

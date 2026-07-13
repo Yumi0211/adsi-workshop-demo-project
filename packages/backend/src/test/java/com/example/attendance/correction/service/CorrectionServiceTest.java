@@ -104,7 +104,8 @@ class CorrectionServiceTest {
                     LocalDate.of(2025, 1, 15),
                     Instant.parse("2025-01-14T23:30:00Z"),
                     Instant.parse("2025-01-15T09:00:00Z"),
-                    "打刻時刻を間違えました"
+                    "打刻時刻を間違えました",
+                    null
             );
 
             when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
@@ -134,7 +135,8 @@ class CorrectionServiceTest {
                     LocalDate.of(2025, 1, 15),
                     Instant.parse("2025-01-14T23:00:00Z"),
                     Instant.parse("2025-01-15T08:00:00Z"),
-                    "打刻忘れ"
+                    "打刻忘れ",
+                    null
             );
 
             when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
