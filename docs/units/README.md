@@ -30,13 +30,13 @@ Phase B: 実装（Unit 01〜04 並列）
   部署管理  社員管理   認証 / 打刻
     │
     ▼
-Phase C: 実装（Unit 05 / 06 並列）
-  - Flyway V4（corrections テーブル）
+Phase C: 実装（Unit 05 / 06 / 07 並列）
+  - Flyway V4（corrections）, V7〜V8（leave）
     │
-    ├──────────┐
-    ▼          ▼
-  Unit 05    Unit 06
-  勤怠修正   月次集計
+    ├──────────┬──────────┐
+    ▼          ▼          ▼
+  Unit 05    Unit 06    Unit 07
+  勤怠修正   月次集計   有給休暇
 ```
 
 ### Phase A で定義するもの
@@ -72,6 +72,7 @@ Phase C: 実装（Unit 05 / 06 並列）
 | 04 | [打刻・勤怠](unit_04_attendance.md) | B | attendance_records | clock-in/out, history, team, all |
 | 05 | [勤怠修正](unit_05_correction.md) | C | attendance_corrections | corrections, pending, approve, reject |
 | 06 | [月次集計・帳票](unit_06_report.md) | C | — | monthly, csv, pdf |
+| 07 | [有給休暇](unit_07_leave.md) | C | leave_requests, leave_balances | leaves, balance, pending, approve, reject, summary |
 
 ## 実装順序
 
@@ -88,4 +89,8 @@ Phase C: 実装（Unit 05 / 06 並列）
 | V2 | `V2__create_employees.sql` | Phase A |
 | V3 | `V3__create_attendance_records.sql` | Phase A |
 | V4 | `V4__create_attendance_corrections.sql` | Phase C |
+| V5 | `V5__add_memo_to_attendance_records.sql` | 実装済み |
+| V6 | `V6__add_memo_to_attendance_corrections.sql` | 実装済み |
+| V7 | `V7__create_leave_requests.sql` | Phase C (Unit 07) |
+| V8 | `V8__create_leave_balances.sql` | Phase C (Unit 07) |
 | V1000 | `V1000__seed_data.sql` | Phase B 完了後 |

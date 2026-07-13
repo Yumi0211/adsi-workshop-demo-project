@@ -97,17 +97,24 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/attendance/history").authenticated()
             .requestMatchers(HttpMethod.POST, "/api/corrections").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/corrections").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/leaves").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/leaves").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/leaves/balance").authenticated()
 
             .requestMatchers("/api/attendance/team/**").authenticated()
             .requestMatchers("/api/corrections/pending/**").authenticated()
             .requestMatchers("/api/corrections/*/approve").authenticated()
             .requestMatchers("/api/corrections/*/reject").authenticated()
+            .requestMatchers("/api/leaves/pending").authenticated()
+            .requestMatchers("/api/leaves/*/approve").authenticated()
+            .requestMatchers("/api/leaves/*/reject").authenticated()
 
             .requestMatchers("/api/employees/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.POST, "/api/departments").hasRole("ADMIN")
             .requestMatchers(HttpMethod.PUT, "/api/departments/{id}").hasRole("ADMIN")
             .requestMatchers(HttpMethod.GET, "/api/attendance/all").hasRole("ADMIN")
             .requestMatchers("/api/reports/**").hasRole("ADMIN")
+            .requestMatchers("/api/leaves/summary").hasRole("ADMIN")
 
             .anyRequest().denyAll();
     }
