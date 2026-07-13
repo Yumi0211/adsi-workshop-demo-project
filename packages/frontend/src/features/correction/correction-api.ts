@@ -12,6 +12,7 @@ export interface CorrectionResponse {
   targetDate: string;
   correctedClockIn: string;
   correctedClockOut: string;
+  correctedMemo: string | null;
   reason: string;
   status: CorrectionStatus;
   rejectReason: string | null;
@@ -27,6 +28,7 @@ export interface PendingCorrectionResponse {
   targetDate: string;
   correctedClockIn: string;
   correctedClockOut: string;
+  correctedMemo: string | null;
   reason: string;
   version: number;
   createdAt: string;
