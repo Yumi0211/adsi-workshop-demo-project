@@ -100,6 +100,14 @@ describe("ClockButtons", () => {
     expect(screen.queryByRole("button", { name: /保存/ })).not.toBeInTheDocument();
   });
 
+  it("未出勤（NOT_CLOCKED_IN）は備考入力欄が無効で保存ボタンが非表示", () => {
+    mockStatus("NOT_CLOCKED_IN");
+    render(<ClockButtons />);
+    const input = screen.getByPlaceholderText("備考（任意）");
+    expect(input).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /保存/ })).not.toBeInTheDocument();
+  });
+
   it("出勤中にサーバーから取得した備考が入力欄に表示される", () => {
     mockStatus("CLOCKED_IN", "在宅勤務");
     render(<ClockButtons />);

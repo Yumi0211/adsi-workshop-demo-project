@@ -98,11 +98,15 @@ export function ClockButtons() {
 
   useEffect(() => {
     if (!todayStatus || !user) return;
+    const status = todayStatus.status;
     const lastRecord = todayStatus.records[todayStatus.records.length - 1];
-    if (lastRecord?.memo) {
+
+    if (status === "NOT_CLOCKED_IN") {
+      setMemo("");
+    } else if (lastRecord?.memo) {
       setMemo(lastRecord.memo);
     } else {
-      setMemo(getDraftMemo(user.id, today));
+      setMemo("");
     }
   }, [todayStatus, user, today]);
 
@@ -176,15 +180,16 @@ export function ClockButtons() {
           <span className="text-lg font-bold">退勤</span>
         </button>
       </div>
-      <div className="max-w-md mx-auto space-y-2">
+      <div className="flex max-w-md mx-auto gap-2">
         <Input
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           placeholder="備考（任意）"
           maxLength={50}
-          disabled={!isMemoEditable && status !== "NOT_CLOCKED_IN"}
+          disabled={!isMemoEditable}
+          className="flex-1 bg-white"
         />
-        {(isMemoEditable || status === "NOT_CLOCKED_IN") && (
+        {isMemoEditable && (
           <Button
             size="sm"
             variant="outline"
