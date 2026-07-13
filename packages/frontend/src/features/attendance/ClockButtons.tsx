@@ -2,83 +2,13 @@
 
 import { LogIn, LogOut, Save } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/useAuth";
+import { CurrentTime } from "./CurrentTime";
 import { formatTime } from "./format";
 import { useClockIn, useClockOut, useTodayStatus, useUpdateMemo } from "./useAttendance";
-
-const MEMO_STORAGE_PREFIX = "attendance_memo_draft_";
-
-function getMemoStorageKey(employeeId: string, date: string) {
-  return `${MEMO_STORAGE_PREFIX}${employeeId}_${date}`;
-}
-
-function getDraftMemo(employeeId: string, date: string): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(getMemoStorageKey(employeeId, date)) ?? "";
-}
-
-function saveDraftMemo(employeeId: string, date: string, memo: string) {
-  if (typeof window === "undefined") return;
-  if (memo) {
-    localStorage.setItem(getMemoStorageKey(employeeId, date), memo);
-  } else {
-    localStorage.removeItem(getMemoStorageKey(employeeId, date));
-  }
-}
-
-function clearDraftMemo(employeeId: string, date: string) {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(getMemoStorageKey(employeeId, date));
-}
-
-export function clearAllMemoDrafts() {
-  if (typeof window === "undefined") return;
-  const keysToRemove: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith(MEMO_STORAGE_PREFIX)) {
-      keysToRemove.push(key);
-    }
-  }
-  for (const key of keysToRemove) {
-    localStorage.removeItem(key);
-  }
-}
-
-function CurrentTime() {
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const timeStr = now.toLocaleTimeString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-
-  const dateStr = now.toLocaleDateString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
-  });
-
-  return (
-    <div className="text-center">
-      <p className="text-4xl font-bold tabular-nums tracking-tight">{timeStr}</p>
-      <p className="text-sm text-muted-foreground mt-1">{dateStr}</p>
-    </div>
-  );
-}
 
 const STATUS_LABELS = {
   NOT_CLOCKED_IN: "未出勤",
@@ -94,21 +24,21 @@ export function ClockButtons() {
   const updateMemoMutation = useUpdateMemo();
   const [memo, setMemo] = useState("");
 
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+  const status = todayStatus?.status ?? "NOT_CLOCKED_IN";
+  const lastRecord = todayStatus?.records[todayStatus.records.length - 1];
+  const canClockIn = status === "NOT_CLOCKED_IN";
+  const canClockOut = status === "CLOCKED_IN";
+  const isMemoEditable = status === "CLOCKED_IN";
+  const isPending = clockInMutation.isPending || clockOutMutation.isPending;
 
   useEffect(() => {
-    if (!todayStatus || !user) return;
-    const status = todayStatus.status;
-    const lastRecord = todayStatus.records[todayStatus.records.length - 1];
-
+    if (!todayStatus) return;
     if (status === "NOT_CLOCKED_IN") {
       setMemo("");
-    } else if (lastRecord?.memo) {
-      setMemo(lastRecord.memo);
     } else {
-      setMemo("");
+      setMemo(lastRecord?.memo ?? "");
     }
-  }, [todayStatus, user, today]);
+  }, [todayStatus, status, lastRecord?.memo]);
 
   if (isLoading) {
     return (
@@ -123,30 +53,9 @@ export function ClockButtons() {
     );
   }
 
-  const status = todayStatus?.status ?? "NOT_CLOCKED_IN";
-  const canClockIn = status === "NOT_CLOCKED_IN";
-  const canClockOut = status === "CLOCKED_IN";
-  const isMemoEditable = status === "CLOCKED_IN";
-  const isPending = clockInMutation.isPending || clockOutMutation.isPending;
-
-  const lastRecord = todayStatus?.records[todayStatus.records.length - 1];
-
-  const handleClockIn = () => {
-    const draftMemo = user ? getDraftMemo(user.id, today) : undefined;
-    clockInMutation.mutate(draftMemo || undefined, {
-      onSuccess: () => {
-        if (user) clearDraftMemo(user.id, today);
-      },
-    });
-  };
-
   const handleSaveMemo = () => {
-    if (!user) return;
-    if (status === "NOT_CLOCKED_IN") {
-      saveDraftMemo(user.id, today, memo);
-    } else if (lastRecord) {
-      updateMemoMutation.mutate({ recordId: lastRecord.id, memo });
-    }
+    if (!lastRecord) return;
+    updateMemoMutation.mutate({ recordId: lastRecord.id, memo });
   };
 
   return (
@@ -164,7 +73,7 @@ export function ClockButtons() {
         <button
           type="button"
           disabled={!canClockIn || isPending}
-          onClick={handleClockIn}
+          onClick={() => clockInMutation.mutate()}
           className="flex flex-col items-center justify-center gap-2 rounded-xl bg-purple-300 py-8 text-white transition-colors hover:bg-purple-400 active:bg-purple-500 disabled:bg-gray-200 disabled:text-gray-400"
         >
           <LogIn className="h-8 w-8" />
